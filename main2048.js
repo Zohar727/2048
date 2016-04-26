@@ -42,7 +42,7 @@ function updateBoardView(){
     for(var i=0;i<4;i++) {
         for (var j = 0; j < 4; j++){
             $("#grid-container").append('<div class="number-cell" id="number-cell-'+i+'-'+j+'"></div>');
-            var theNumberCell=$('#number-cell-'+i+'-'+j)
+            var theNumberCell=$('#number-cell-'+i+'-'+j);
             if(board[i][j]==0){
                 theNumberCell.css('width','0px');
                 theNumberCell.css('height','0px');
@@ -84,7 +84,7 @@ function generateOneNumber(){
 }
 
 $(document).keydown(function(event){
-    event.preventDefault();
+    //event.preventDefault();
     switch (event.keyCode){
         case 37://left
             if(moveleft()){
@@ -114,13 +114,15 @@ $(document).keydown(function(event){
             break;
     }
 });
+
 function isgameover(){
     if(nospace(board)&& nomove(board)){
         gameover();
     }
 }
+
 function gameover(){
-    alert("gameover")
+    alert('gameover')
 }
 function moveleft(){
     if(!canmoveleft(board))
@@ -155,6 +157,7 @@ function moveleft(){
     //updateBoardView();
     return true;
 }
+
 function moveup(){
     if(!canmoveup(board))
         return false;
@@ -162,13 +165,13 @@ function moveup(){
     for(var j=0;j<4;j++)
         for(var i=1;i<4;i++){
             if(board[i][j]!=0){
-                for(var k=0;k<4;k++){
+                for(var k=0;k<i;k++){
                     if(board[k][j]==0 && noBlockVertical(j,k,i,board)){
                         //move
                         showMoveAnimation(i,j,k,j);
                         board[k][j]=board[i][j];
                         board[i][j]=0;
-                        continue
+                        continue;
                     }
                     else if(board[k][j]==board[i][j] && noBlockVertical(j,k,i,board)&& !hasConflicted[k][j]){
                         //move
@@ -230,7 +233,7 @@ function movedown(){
     for(var j=0;j<4;j++)
         for(var i=2;i>=0;i--){
             if(board[i][j]!=0){
-                for(var k=3;k>=0;k--){
+                for(var k=3;k>i;k--){
                     if(board[k][j]==0 && noBlockVertical(j,i,k,board)){
                         //move
                         showMoveAnimation(i,j,k,j);
