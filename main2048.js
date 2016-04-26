@@ -4,10 +4,30 @@
 var board=new Array();
 var score=0;
 var hasConflicted=new Array();
+var startx=0;//触控前后坐标获取
+var starty=0;
+var endx=0;
+var endy=0;
 $(document).ready(function(){
+    prepareForMobile();//移动端适配
     newgame();
 });
 
+function prepareForMobile(){
+    if(documentWidth>500){
+        gridContainerWidth=500;
+        cellSpace=20;
+        cellSideLength=100;
+    }
+    $('#grid-container').css('width',gridContainerWidth-2*cellSpace);
+    $('#grid-container').css('height',gridContainerWidth-2*cellSpace);
+    $('#grid-container').css('padding',cellSpace);
+    $('#grid-container').css('border-radius',0.02*gridContainerWidth);
+
+    $('.grid-cell').css('width',cellSideLength);
+    $('.grid-cell').css('height',cellSideLength);
+    $('.grid-cell').css('border-radius',0.02*cellSideLength);
+}
 function newgame(){
     //初始化棋盘格
     init();
@@ -46,12 +66,12 @@ function updateBoardView(){
             if(board[i][j]==0){
                 theNumberCell.css('width','0px');
                 theNumberCell.css('height','0px');
-                theNumberCell.css('top',getPosTop(i,j)+50);
-                theNumberCell.css('left',getPosLeft(i,j)+50);
+                theNumberCell.css('top',getPosTop(i,j)+cellSideLength/2);
+                theNumberCell.css('left',getPosLeft(i,j)+cellSideLength/2);
             }
             else{
-                theNumberCell.css('width','100px');
-                theNumberCell.css('height','100px');
+                theNumberCell.css('width',cellSideLength);
+                theNumberCell.css('height',cellSideLength);
                 theNumberCell.css('top',getPosTop(i,j));
                 theNumberCell.css('left',getPosLeft(i,j));
                 theNumberCell.css('background-color',getNumberBackgroundColor(board[i][j]));
@@ -61,7 +81,8 @@ function updateBoardView(){
             hasConflicted[i][j]=false;
         }
     }
-
+   $('.number-cell').css('line-height',cellSideLength+'px');
+   $('.number-cell').css('font-size',0.6*cellSideLength+'px');
 }
 function generateOneNumber(){
     if(nospace(board))
@@ -84,7 +105,7 @@ function generateOneNumber(){
 }
 
 $(document).keydown(function(event){
-    //event.preventDefault();
+    event.preventDefault();//禁用方向键控制滚动条
     switch (event.keyCode){
         case 37://left
             if(moveleft()){
@@ -114,7 +135,55 @@ $(document).keydown(function(event){
             break;
     }
 });
+//触摸监听
+document.addEventListener('touchstart',function(event){
+       startx=event.touches[0].pageX;
+       starty=event.touches[0].pageY;
+});
+document.addEventListener('touchmove',function(event){
+    event.preventDefault();
+})
+document.addEventListener('touchend',function(event){
+        endx=event.changedTouches[0].pageX;
+        endy=event.changedTouches[0].pageY;
+        var deltax=endx-startx;
+        var deltay=endy-starty;
+        if(Math.abs(deltax)<0.1*documentWidth&&Math.abs(deltay)<0.1*documentWidth)
+            return;
+        if(Math.abs(deltax)>=Math.abs(deltay)) {//滑动在x轴
+             if(deltax>0){
+                 //向右滑动
+                 if(moveright()){
+                     setTimeout("generateOneNumber()",210);
+                     setTimeout("isgameover()",300);
+                 }
+             }
+            else{
+                 //向左滑动
+                 if(moveleft()){
+                     setTimeout("generateOneNumber()",210);
+                     setTimeout("isgameover()",300);
+                 }
+             }
 
+        }
+        else{//滑动在Y轴
+            if(deltay>0){
+                //向下滑动
+                if(movedown()){
+                    setTimeout("generateOneNumber()",210);
+                    setTimeout("isgameover()",300);
+                }
+            }
+            else{
+                //向上滑动
+                if(moveup()){
+                    setTimeout("generateOneNumber()",210);
+                    setTimeout("isgameover()",300);
+                }
+            }
+        }
+})
 function isgameover(){
     if(nospace(board)&& nomove(board)){
         gameover();
